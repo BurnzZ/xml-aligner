@@ -1,4 +1,10 @@
-## Usage:
+## Usage
+
+`python xml-aligner.py <xml document>.xml`
+
+## Hook-up to vim
+
+Add this to your ~/.vimrc:
 
 ```vim
 function XMLAlign()
