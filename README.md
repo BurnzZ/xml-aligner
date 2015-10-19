@@ -1,6 +1,6 @@
 ## Usage
 
-`python xml-aligner.py <xml document>.xml`
+`python xml-aligner.py <xml document>[.xml]`
 
 ## Hook-up to vim
 
@@ -19,3 +19,5 @@ endfunction
 
 map <leader>a :call XMLAlign()<CR>
 ```
+
+Now press <leader>a and see the magic
