@@ -20,4 +20,4 @@ endfunction
 map <leader>a :call XMLAlign()<CR>
 ```
 
-Now press <leader>a and see the magic
+Now press `<leader>a` and see the magic.
