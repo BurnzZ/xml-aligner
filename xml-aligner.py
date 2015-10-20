@@ -54,7 +54,7 @@ def getKeys(tags):
     keys = []
 
     for line in tags:
-        for pair in re.findall(r'([a-z]*)\s*=\s*("[()\w\.@{} ]*")', line):
+        for pair in re.findall(r'([a-z]*)\s*=\s*("[()\w\d\.@{}/\' ]*")', line):
             if pair[0] not in keys:
                 keys.append(pair[0])
 
