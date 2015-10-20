@@ -76,7 +76,7 @@ def clean(tags):
     """ remove repetitive whitespaces in a tag """
 
     for i in range(len(tags)):
-        tags[i] = re.sub(' +', ' ', tags[i]) # TODO: consider changing later
+        tags[i] = re.sub(' +', ' ', tags[i]) # TODO: consider changing later since it might break some arbitrary spaces in attr-val
     return tags
 
 
@@ -90,7 +90,7 @@ def arrange(tags = [], margin = 0):
         for i in range(len(tags)):
             if tags[i].find(key) > 0: 
                 new = (max - tags[i].find(key))*' ' + key
-                tags[i] = tags[i].replace(key, new)
+                tags[i] = tags[i].replace(key, new, 1)
 
     # damn that's pretty
     for line in tags:
