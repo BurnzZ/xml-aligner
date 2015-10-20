@@ -49,7 +49,7 @@ def prettify(file):
                 margin = 0
 
 def getKeys(tags):
-    """ returns the keys of the group of SC Tags """
+    """ returns the keys found in the group of SC Tags """
 
     keys = []
 
@@ -72,19 +72,25 @@ def getMax(tags, key):
 
     return max
 
-def clean(tags):
-    """ remove repetitive whitespaces in a tag """
-
+def clean(tags, key):
+    """ remove repetitive whitespaces in a tag, particularly the ones before an attr-key
+    """
+    
     for i in range(len(tags)):
-        tags[i] = re.sub(' +', ' ', tags[i]) # TODO: consider changing later since it might break some arbitrary spaces in attr-val
-    return tags
+        pos = tags[i].find(key)
 
+        while re.match(r'\s', tags[i][pos-2]):
+            tags[i] = tags[i][:pos-2] + tags[i][pos-1:]
+            pos = tags[i].find(key)
+
+    return tags
 
 def arrange(tags = [], margin = 0):
 
-    attrKeys = getKeys(clean(tags))
+    attrKeys = getKeys(tags)
 
     for key in attrKeys:
+        tags = clean(tags, key)
         max = getMax(tags, key)
 
         for i in range(len(tags)):
