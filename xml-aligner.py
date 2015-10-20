@@ -54,7 +54,7 @@ def getKeys(tags):
     keys = []
 
     for line in tags:
-        for pair in re.findall(r'([a-z]*)\s*=\s*("[()\w\d\.@{}/\' ]*")', line):
+        for pair in re.findall(r'(\w*)\s*=\s*("[^"]*")', line):
             if pair[0] not in keys:
                 keys.append(pair[0])
 
@@ -72,9 +72,17 @@ def getMax(tags, key):
 
     return max
 
+def clean(tags):
+    """ remove repetitive whitespaces in a tag """
+
+    for i in range(len(tags)):
+        tags[i] = re.sub(' +', ' ', tags[i]) # TODO: consider changing later
+    return tags
+
+
 def arrange(tags = [], margin = 0):
 
-    attrKeys = getKeys(tags)
+    attrKeys = getKeys(clean(tags))
 
     for key in attrKeys:
         max = getMax(tags, key)
