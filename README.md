@@ -4,8 +4,7 @@
 
 ## Hook-up to vim
 
-Clone this to your (preferably) `~/.vim/bundles` as `git clone https://github.com/BurnzZ/xml-aligner.git ~/.vim/bundles/`
-and add this to your ~/.vimrc:
+Clone this to your (preferably) `~/.vim/bundles` and add this to your ~/.vimrc:
 
 ```vim
 function XMLAlign()
@@ -24,7 +23,7 @@ map <leader>a :call XMLAlign()<CR>
 
 Now press `<leader>a` and see the magic.
 
-(*If you've cloned to a different dir other than `~/.vim/bundles/`, make sure you update the path script in the code block above*)
+(*If you've cloned to a different dir other than `~/.vim/bundles/`, make sure you update the path script in the code block above.*)
 
 ## Notes
 
