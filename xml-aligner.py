@@ -61,7 +61,7 @@ def getMax(tags, key):
 
     return max
 
-def find(tag, key, isKey = True):
+def find(tag, key, isKey = True, after = 0):
     """ prevents the bug in matching prematurely """
 
     if key != '/>':
@@ -70,12 +70,17 @@ def find(tag, key, isKey = True):
         else:
             regex = r"=\s*" + re.escape(key)
 
-        match = re.search(regex, tag)
-
-        if not match: 
+        # check first if exists
+        if not re.findall(regex, tag):
             return -1
         else:
-            position = match.start(0)
+            for match in re.finditer(regex, tag):
+                # print match.start(), after
+                if match.start() < after:
+                    continue
+                else:
+                    position = match.start(0)
+                    break
     else:
         position = tag.find(key)
 
@@ -100,7 +105,7 @@ def clean(tags, key, attrPairs):
             endKey = find(tags[i], key) + len(key)
 
             if key in attrPairs[i].keys():
-                startAttr = find(tags[i], attrPairs[i][key], False) + 1
+                startAttr = find(tags[i], attrPairs[i][key], False, endKey) + 1
             else:
                 continue
 
@@ -144,6 +149,7 @@ def arrange(tags = [], margin = 0):
     attrKeys, attrPairs = getKeys(tags)
 
     for key in attrKeys:
+
         tags = clean(tags, key, attrPairs)
         max = getMax(tags, key)
 
