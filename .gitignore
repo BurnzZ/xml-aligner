@@ -1,5 +1,6 @@
 *.xml
 *.bak
+.vim-bookmarks
 
 created by https://www.gitignore.io/api/,osx,linux,vim,python
 
