@@ -56,10 +56,30 @@ def getMax(tags, key):
 
     # count max key position in tags
     for line in tags:
-        if line.find(key) > max:
-            max = line.find(key)
+        if find(line, key) > max:
+            max = find(line, key)
 
     return max
+
+def find(tag, key, isKey = True):
+    """ prevents the bug in matching prematurely """
+
+    if key != '/>':
+        if isKey:
+            regex = re.escape(key) + r"\s*="
+        else:
+            regex = r"=\s*" + re.escape(key)
+
+        match = re.search(regex, tag)
+
+        if not match: 
+            return -1
+        else:
+            position = match.start(0)
+    else:
+        position = tag.find(key)
+
+    return position
 
 def clean(tags, key, attrPairs):
     """ cleans and corrects whitespaces """
@@ -67,21 +87,27 @@ def clean(tags, key, attrPairs):
     
     # removes repetitive whitespaces in a tag, particularly the ones before an attr-key
     for i in range(len(tags)):
-        pos = tags[i].find(key)
+        pos = find(tags[i], key)
 
         # removes excess whitespaces by string shrinking
         while re.match(r'\s', tags[i][pos-2]):
             tags[i] = tags[i][:pos-2] + tags[i][pos-1:]
-            pos = tags[i].find(key)
+            pos = find(tags[i], key)
 
     # makes sure there's exactly one space in the '=' sign in between attr-key 
     for i in range(len(tags)):
         if key != '/>':
-            regex = re.escape(key) + r"\s*="
-            x = re.search(regex, tags[i])
-            endKey = x.start(0) + len(key)
+            endKey = find(tags[i], key) + len(key)
 
-            startAttr = tags[i].find(attrPairs[i][key])
+            if key in attrPairs[i].keys():
+                startAttr = find(tags[i], attrPairs[i][key], False) + 1
+            else:
+                continue
+
+            # removes excess whitespace after '=' sign 
+            while re.match(r'\s', tags[i][startAttr]):
+                tags[i] = tags[i][:startAttr] + tags[i][startAttr+1:]
+
             tags[i] = tags[i][:endKey] + ' = ' + tags[i][startAttr:]
 
     # makes sure there's an extra white space before the SC tag: '/>'
@@ -122,10 +148,14 @@ def arrange(tags = [], margin = 0):
         max = getMax(tags, key)
 
         for i in range(len(tags)):
-            key_start = tags[i].find(key)
+            key_start = find(tags[i], key)
             if key_start > 0: 
-                new = (max - key_start)*' ' + key
-                tags[i] = tags[i].replace(key, new, 1)
+                if key != '/>':
+                    new = (max - key_start + 1)*' ' + key + ' '
+                    tags[i] = tags[i].replace(' ' + key + ' ', new, 1)
+                else:
+                    new = (max - key_start)*' ' + key
+                    tags[i] = tags[i].replace(key, new, 1)
 
     # damn that's pretty
     for line in tags:
