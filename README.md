@@ -31,11 +31,9 @@ Now press `<leader>a` and see the magic.
 
 ## Notes
 
-You can compartmentalize groups of self-closing tags (belonging to the same parent node) with different alignments by having an empty line between them.
-
 #### Example
 
-BEFORE:
+Before:
 ``` xml
 <div id = "main">
     <img src = "#tag1"   class = "side main" />
@@ -46,7 +44,7 @@ BEFORE:
 </div>
 ```
 
-AFTER:
+After:
 ``` xml
 <div id = "main">
     <img src = "#tag1"   class = "side main"  />
