@@ -35,14 +35,24 @@ You can compartmentalize groups of self-closing tags (belonging to the same pare
 
 #### Example
 
-These two groups would have separate alignments even though they are in the same *parent node*
-
+BEFORE:
 ``` xml
 <div id = "main">
-    <img src = "#tag1" class = "side main" />
+    <img src = "#tag1"   class = "side main" />
     <img src = "#tag223" class = "side main" />
 
-    <img src = "#here" alt = "placeholder front" class = "side minor" />
-    <img src = "#there" alt = "placeholder back" class = "side minor" />
+    <img src = "#here" class = "side minor" />
+    <img src = "#there"      class = "side minor" />
+</div>
+```
+
+AFTER:
+``` xml
+<div id = "main">
+    <img src = "#tag1"   class = "side main"  />
+    <img src = "#tag223" class = "side main"  />
+
+    <img src = "#here"   class = "side minor" />
+    <img src = "#there"  class = "side minor" />
 </div>
 ```

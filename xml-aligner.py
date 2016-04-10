@@ -15,11 +15,25 @@ USAGE:  python xml-aligner.py <xml-document>[.xml]
 #   - make as generic as possible
 #   - use class-based heirarchy
 
+# -------------------
+# Flow:
+# 
+# prettify()
+#   arrange()
+#       getMax()
+#       clean()
+#       ...
+# -------------------
+
+import json
+
 import copy
 import sys
 import re
 
 def prettify(file):
+    """ Goes thru each line in the document and decides what to do with them. """
+
     with open(file) as f:
 
         flag = False # true for when a 1st SC tag is encountered
@@ -27,7 +41,11 @@ def prettify(file):
         margin = 0   # margin for the collected SC
 
         for line in f:
-            if re.search(r'\/\>', line):
+            # searches for..
+            #   - normal lines
+            #   - commented lines
+            #   - empty lines
+            if re.search(r'\/\>', line) or re.search(r'--\>', line) or not line.strip():
 
                 if not flag:
                     flag = True
@@ -35,7 +53,8 @@ def prettify(file):
 
                 # gotta catch 'em all (SC tags)
                 tags.append(line.strip())
-
+    
+            # TODO: consider removing later since new conditions are introduced
             elif not flag:
                 print line,
 
@@ -50,7 +69,34 @@ def prettify(file):
                 margin = 0
 
 
+def arrange(tags = [], margin = 0):
+    """ Aligns to group of tags passed to it. """
+
+    attrKeys, attrPairs = getKeys(tags)
+
+    for key in attrKeys:
+
+        tags = clean(tags, key, attrPairs)
+        max = getMax(tags, key)
+
+        for i in range(len(tags)):
+            key_start = find(tags[i], key)
+            
+            if key_start > 0: 
+                if key != '/>':
+                    new = (max - key_start + 1)*' ' + key + ' '
+                    tags[i] = tags[i].replace(' ' + key + ' ', new, 1)
+                else:
+                    new = (max - key_start)*' ' + key
+                    tags[i] = tags[i].replace(key, new, 1)
+
+    # damn that's pretty
+    for line in tags:
+        print (margin-1)*' ', line
+
+
 def getMax(tags, key):
+    """ Returns the max position of a given `key` (i.e. img, href) in a list of tags """
 
     max = 0
 
@@ -75,7 +121,6 @@ def find(tag, key, isKey = True, after = 0):
             return -1
         else:
             for match in re.finditer(regex, tag):
-                # print match.start(), after
                 if match.start() < after:
                     continue
                 else:
@@ -86,12 +131,17 @@ def find(tag, key, isKey = True, after = 0):
 
     return position
 
+
 def clean(tags, key, attrPairs):
     """ cleans and corrects whitespaces """
     # TODO: optimize code
     
     # removes repetitive whitespaces in a tag, particularly the ones before an attr-key
     for i in range(len(tags)):
+
+        if (not tags[i]):
+            continue
+
         pos = find(tags[i], key)
 
         # removes excess whitespaces by string shrinking
@@ -119,10 +169,13 @@ def clean(tags, key, attrPairs):
     if key == '/>':
         for i in range(len(tags)):
             start = tags[i].find(key)
+            if start == -1:
+                continue
             if not re.match(r'\s', tags[i][start-1]):
                 tags[i] = tags[i][:start] + ' />'
 
     return tags
+
 
 def getKeys(tags):
     """ returns the keys found in the group of SC Tags """
@@ -140,32 +193,10 @@ def getKeys(tags):
                 attrKeys.append(pair[0])
             d[pair[0]] = pair[1] 
         attrPairs.append(copy.deepcopy(d))
-                
+
     attrKeys.append('/>') # undecent hack for closing-tag
     return (attrKeys, attrPairs)
 
-def arrange(tags = [], margin = 0):
-
-    attrKeys, attrPairs = getKeys(tags)
-
-    for key in attrKeys:
-
-        tags = clean(tags, key, attrPairs)
-        max = getMax(tags, key)
-
-        for i in range(len(tags)):
-            key_start = find(tags[i], key)
-            if key_start > 0: 
-                if key != '/>':
-                    new = (max - key_start + 1)*' ' + key + ' '
-                    tags[i] = tags[i].replace(' ' + key + ' ', new, 1)
-                else:
-                    new = (max - key_start)*' ' + key
-                    tags[i] = tags[i].replace(key, new, 1)
-
-    # damn that's pretty
-    for line in tags:
-        print (margin-1)*' ', line
 
 if len(sys.argv) == 1:
     print "wrong"
