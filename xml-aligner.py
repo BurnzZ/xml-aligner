@@ -19,7 +19,7 @@ USAGE:  python xml-aligner.py <xml-document>[.xml]
 # Flow:
 # 
 # prettify()
-#   arrange()
+#   arrange() - called upon last SC tag
 #       getMax()
 #       clean()
 #       ...
@@ -36,36 +36,43 @@ def prettify(file):
 
     with open(file) as f:
 
-        flag = False # true for when a 1st SC tag is encountered
-        tags = []    # collector for SC tags
-        margin = 0   # margin for the collected SC
+        startCapture = False # true for when a 1st SC tag is encountered
+        tags         = []    # collector for SC tags
+        margin       = 0     # margin for the collected SC
 
         for line in f:
-            # searches for..
-            #   - normal lines
-            #   - commented lines
-            #   - empty lines
-            if re.search(r'\/\>', line) or re.search(r'--\>', line) or not line.strip():
+            isTag     = re.search(r'\/\>', line)
+            isComment = re.search(r'--\>', line)
+            isEmpty   = line.strip()
 
-                if not flag:
-                    flag = True
+            # skips empty lines
+            if not isEmpty and not startCapture:
+                print "\n",
+                continue
+
+            elif isTag or isComment or not isEmpty:
+
+                # if not startCapture and ( not re.search(r'--\>', line) or not line.strip() ):
+                if not startCapture:
+                    startCapture = True
                     margin = len(line) - len(line.lstrip(' '))
 
                 # gotta catch 'em all (SC tags)
                 tags.append(line.strip())
     
-            # TODO: consider removing later since new conditions are introduced
-            elif not flag:
+            # prints lines as-is; since nothing started yet
+            elif not startCapture:
                 print line,
 
             # met when the group of SC tags end
+            # this is where arrangement happens
             else:
                 arrange(tags, margin)
                 print line.rstrip()
 
                 # reset
                 del tags[:]
-                flag = False
+                startCapture = False
                 margin = 0
 
 
@@ -90,9 +97,12 @@ def arrange(tags = [], margin = 0):
                     new = (max - key_start)*' ' + key
                     tags[i] = tags[i].replace(key, new, 1)
 
-    # damn that's pretty
+    # print each line, with correct margin, and making sure it ain't empty
     for line in tags:
-        print (margin-1)*' ', line
+        if line.strip():
+            print (margin-1)*' ', line
+        else:
+            print "\n",
 
 
 def getMax(tags, key):
